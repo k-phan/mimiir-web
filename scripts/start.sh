@@ -2,7 +2,7 @@
 cd /bin/mimiir/
 npm install 
 
-pm2 describe mimiir-web > /dev/null
+pm2 describe www > /dev/null
 RUNNING=$?
 
 if [ "${RUNNING}" -ne 0 ]; then
