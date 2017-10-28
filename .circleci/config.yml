@@ -1,0 +1,57 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:7.10
+      
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/mongo:3.4.4
+
+    working_directory: ~/mimiir-web
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: 
+          name: install-npm
+          command: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      
+      # add required key for file transfer
+      - add_ssh_keys:
+          fingerprints:
+            - "90:26:ce:d9:b0:b3:3f:c1:9f:34:a6:72:f6:5c:3b:c0"
+
+      # deployment with scp, ssh, and start.sh!
+      - deploy:
+          name: deploy-mimiir-web
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              scp -o StrictHostKeyChecking=no -r ~/mimiir-web/bin circleci@mimiir.com:/bin/mimiir/
+              scp -o StrictHostKeyChecking=no -r ~/mimiir-web/.circleci circleci@mimiir.com:/bin/mimiir/
+              scp -o StrictHostKeyChecking=no -r ~/mimiir-web/public circleci@mimiir.com:/bin/mimiir/
+              scp -o StrictHostKeyChecking=no -r ~/mimiir-web/routes circleci@mimiir.com:/bin/mimiir/
+              scp -o StrictHostKeyChecking=no -r ~/mimiir-web/views circleci@mimiir.com:/bin/mimiir/
+              scp -o StrictHostKeyChecking=no -r ~/mimiir-web/scripts circleci@mimiir.com:/bin/mimiir/
+              scp -o StrictHostKeyChecking=no ~/mimiir-web/app.js circleci@mimiir.com:/bin/mimiir/
+              scp -o StrictHostKeyChecking=no ~/mimiir-web/package* circleci@mimiir.com:/bin/mimiir/
+              ssh -o StrictHostKeyChecking=no circleci@mimiir.com 'cd /bin/mimiir/mimiir-web/scripts/ && chmod 700 start.sh && ./start.sh'
+            fi
