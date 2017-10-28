@@ -53,5 +53,5 @@ jobs:
               scp -o StrictHostKeyChecking=no -r ~/mimiir-web/scripts circleci@mimiir.com:/bin/mimiir/
               scp -o StrictHostKeyChecking=no ~/mimiir-web/app.js circleci@mimiir.com:/bin/mimiir/
               scp -o StrictHostKeyChecking=no ~/mimiir-web/package* circleci@mimiir.com:/bin/mimiir/
-              ssh -o StrictHostKeyChecking=no circleci@mimiir.com 'cd /bin/mimiir/mimiir-web/scripts/ && chmod 700 start.sh && ./start.sh'
+              ssh -o StrictHostKeyChecking=no circleci@mimiir.com 'cd /bin/mimiir/scripts/ && chmod 700 start.sh && ./start.sh'
             fi
